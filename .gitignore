@@ -1,0 +1,51 @@
+# === BACKEND (Spring Boot) ===
+# Compiled class files
+*.class
+# Log files
+logs/
+*.log
+# IDE files (IntelliJ, Eclipse, VS Code)
+.idea/
+.vscode/
+.project
+.classpath
+.settings/
+# Maven & Gradle
+target/
+*.war
+*.jar
+build/
+# Lombok config
+.lombok/
+# Application properties (secrets)
+application.properties
+application.yml
+# Database files
+*.h2.db
+*.mv.db
+*.sqlite
+*.db
+# Test coverage & reports
+/coverage/
+*.exec
+
+# === FRONTEND (React/Angular) ===
+# Node modules
+node_modules/
+# Build output
+dist/
+build/
+# Package manager files
+package-lock.json
+yarn.lock
+pnpm-lock.yaml
+# Logs
+npm-debug.log
+yarn-debug.log
+yarn-error.log
+# Environment variables
+.env
+.env.local
+# Editor settings
+.eslintcache
+.npm/

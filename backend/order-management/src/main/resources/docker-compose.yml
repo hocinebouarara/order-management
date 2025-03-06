@@ -2,16 +2,17 @@ version: '3.8'
 
 services:
   mysql:
-    image: mysql:8.0
-    container_name: mysql_container
+    image: mysql:8.0.0
+    container_name: mysql-container
     restart: always
     environment:
       MYSQL_ROOT_PASSWORD: root_password
       MYSQL_DATABASE: order_management_dev
       MYSQL_USER: dev_user
       MYSQL_PASSWORD: dev_password
+      SPRING_FLYWAY_ENABLED: "true"
     ports:
-      - "3308:3306"
+      - "3309:3306"
     volumes:
       - mysql_data:/var/lib/mysql
 
@@ -25,7 +26,7 @@ services:
     environment:
       SPRING_PROFILES_ACTIVE: dev  # تشغيل بروفايل `docker`
       DB_HOST: mysql_container
-      DB_PORT: 3306
+      DB_PORT: 3309
       DB_NAME: order_management_dev
       DB_USER: dev_user
       DB_PASSWORD: dev_password
