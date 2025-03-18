@@ -5,14 +5,11 @@ on:
     branches:
       - main
       - develop
-      - feature/devops-setup 
+      - feature/devops-setup
 
 jobs:
   deploy:
-    name: Build & Push Docker Image
     runs-on: ubuntu-latest
-    needs: [build-and-test-backend, build-and-test-frontend]
-
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
