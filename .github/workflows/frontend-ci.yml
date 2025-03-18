@@ -5,10 +5,12 @@ on:
     branches:
       - main
       - develop
+      - feature/devops-setup 
   pull_request:
     branches:
       - main
       - develop
+      - feature/devops-setup 
 
 jobs:
   build-and-test:
