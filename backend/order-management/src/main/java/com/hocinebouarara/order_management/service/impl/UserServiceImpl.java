@@ -1,16 +1,20 @@
 package com.hocinebouarara.order_management.service.impl;
 
+import com.hocinebouarara.order_management.dto.RegisterUserRequest;
 import com.hocinebouarara.order_management.dto.UserDTO;
 import com.hocinebouarara.order_management.mapper.UserMapper;
+import com.hocinebouarara.order_management.model.entity.Role;
 import com.hocinebouarara.order_management.model.entity.User;
 import com.hocinebouarara.order_management.repository.RoleRepository;
 import com.hocinebouarara.order_management.repository.UserRepository;
 import com.hocinebouarara.order_management.service.UserService;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @Transactional
@@ -18,8 +22,12 @@ import java.util.List;
 public class UserServiceImpl implements UserService {
 
     private final UserRepository userRepository;
+
     private final UserMapper userMapper;
+
     private final RoleRepository roleRepository;
+
+    private final PasswordEncoder passwordEncoder;
 
     @Override
     public UserDTO createUser(UserDTO userDTO) {
@@ -52,4 +60,24 @@ public class UserServiceImpl implements UserService {
         // Delete the user from the repository by ID
         userRepository.deleteById(id);
     }
+
+
+    @Override
+    public UserDTO registerUser(RegisterUserRequest request) {
+        // convert request to user entity
+        User user = new User();
+        user.setUsername(request.getUsername());
+        user.setEmail(request.getEmail());
+        user.setPassword(passwordEncoder.encode(request.getPassword()));
+
+        List<Role> roles = roleRepository.findAllById(request.getRoleIds());
+        user.setRoles(roles);
+
+        // save user
+        User savedUser = userRepository.save(user);
+
+
+        return userMapper.userToUserDTO(savedUser);
+    }
+
 }
