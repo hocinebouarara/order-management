@@ -1,4 +1,4 @@
-import { Config } from "tailwindcss";
+const { Config } = require("tailwindcss");
 
 export default {
   darkMode: ["class"],
