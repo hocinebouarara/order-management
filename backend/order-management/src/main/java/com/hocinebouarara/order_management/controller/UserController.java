@@ -1,6 +1,5 @@
 package com.hocinebouarara.order_management.controller;
 
-import com.hocinebouarara.order_management.dto.RegisterUserRequest;
 import com.hocinebouarara.order_management.dto.UserDTO;
 import com.hocinebouarara.order_management.service.UserService;
 import lombok.RequiredArgsConstructor;
@@ -43,19 +42,6 @@ public class UserController {
     public ResponseEntity<Void> deleteUser(@PathVariable Long id) {
         userService.deleteUser(id);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
-    }
-
-
-    /**
-     * Registers a new user with the specified roles.
-     *
-     * @param request the request containing user registration data
-     * @return the created user
-     */
-    @PostMapping("/register")
-    public ResponseEntity<UserDTO> registerUser(@RequestBody RegisterUserRequest request) {
-        UserDTO registeredUser = userService.registerUser(request);
-        return ResponseEntity.ok(registeredUser);
     }
 
 }

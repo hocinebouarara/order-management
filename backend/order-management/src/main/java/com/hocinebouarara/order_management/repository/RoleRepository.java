@@ -4,6 +4,8 @@ import com.hocinebouarara.order_management.model.entity.Role;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
+import java.util.Optional;
+
 /**
  * Repository interface for accessing {@link Role} entities from the database.
  * <p>
@@ -21,5 +23,12 @@ import org.springframework.stereotype.Repository;
  */
 @Repository
 public interface RoleRepository extends JpaRepository<Role, Long> {
-    // Custom query methods can be added here in the future if needed
+    /**
+     * Retrieves a role by its name.
+     *
+     * @param name the name of the role to search for
+     * @return an {@link Optional} containing the found {@link Role}, or empty if not found
+     */
+    Optional<Role> findByName(String name);
+
 }

@@ -43,4 +43,9 @@ public class User {
         inverseJoinColumns = @JoinColumn(name = "role_id") // عمود الربط في جدول الأدوار
     )
     private List<Role> roles;
+
+    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL)
+    private Seller seller;
+
+
 }
