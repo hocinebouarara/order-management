@@ -6,7 +6,6 @@ import com.hocinebouarara.order_management.dto.LoginResponse;
 import com.hocinebouarara.order_management.dto.RegisterUserRequest;
 import com.hocinebouarara.order_management.dto.UserDTO;
 import com.hocinebouarara.order_management.service.AuthService;
-import com.hocinebouarara.order_management.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -19,7 +18,6 @@ import org.springframework.web.bind.annotation.RestController;
 @RequiredArgsConstructor
 public class AuthController {
 
-    private final UserService userService;
     private final AuthService authService;
 
     /**
@@ -30,7 +28,7 @@ public class AuthController {
      */
     @PostMapping("/register")
     public ResponseEntity<UserDTO> registerUser(@RequestBody RegisterUserRequest request) {
-        UserDTO registeredUser = userService.registerUser(request);
+        UserDTO registeredUser = authService.registerUser(request);
         return ResponseEntity.ok(registeredUser);
     }
 
