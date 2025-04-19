@@ -6,7 +6,7 @@ import com.hocinebouarara.order_management.dto.LoginResponse;
 import com.hocinebouarara.order_management.dto.RegisterUserRequest;
 import com.hocinebouarara.order_management.dto.UserDTO;
 import com.hocinebouarara.order_management.service.AuthService;
-import com.hocinebouarara.order_management.service.UserService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -19,7 +19,6 @@ import org.springframework.web.bind.annotation.RestController;
 @RequiredArgsConstructor
 public class AuthController {
 
-    private final UserService userService;
     private final AuthService authService;
 
     /**
@@ -29,8 +28,8 @@ public class AuthController {
      * @return the created user
      */
     @PostMapping("/register")
-    public ResponseEntity<UserDTO> registerUser(@RequestBody RegisterUserRequest request) {
-        UserDTO registeredUser = userService.registerUser(request);
+    public ResponseEntity<UserDTO> registerUser(@RequestBody @Valid RegisterUserRequest request) {
+        UserDTO registeredUser = authService.registerUser(request);
         return ResponseEntity.ok(registeredUser);
     }
 
@@ -38,7 +37,7 @@ public class AuthController {
 
 
     @PostMapping("/login")
-    public ResponseEntity<LoginResponse> login(@RequestBody LoginRequest request) {
+    public ResponseEntity<LoginResponse> login(@RequestBody @Valid LoginRequest request) {
         return ResponseEntity.ok(authService.login(request));
     }
 
