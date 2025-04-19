@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { SellerProfile, CompanyProfile, UserType } from "../types/profile";
 import SellerProfileForm from "../components/profile/SellerProfileForm";
-import CompanyProfileForm from "@/components/profile/CompanyProfileForm";
+import CompanyProfileForm from "../components/profile/CompanyProfileForm";
 
 // Mock data for demo purposes
 const mockSellerProfile: SellerProfile = {
