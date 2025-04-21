@@ -15,6 +15,8 @@ import {
   FormMessage,
 } from "../components/ui/form";
 import { toast } from "sonner";
+import { useAuth } from "../context/authContext";
+import api from "../lib/axios";
 
 const loginSchema = z.object({
   email: z.string().email({ message: "Please enter a valid email address" }),
@@ -26,6 +28,7 @@ type LoginFormValues = z.infer<typeof loginSchema>;
 export default function Login() {
   const [showPassword, setShowPassword] = useState(false);
   const navigate = useNavigate();
+  const { login } = useAuth();
 
   const form = useForm<LoginFormValues>({
     resolver: zodResolver(loginSchema),
@@ -35,17 +38,37 @@ export default function Login() {
     },
   });
 
-  function onSubmit(data: LoginFormValues) {
+  async function onSubmit(data: LoginFormValues) {
     // In a real app, you would validate credentials with your backend
     console.log(data);
+    try {
+      // Define the expected response type
+      type LoginResponse = {
+        token: string;
+      };
 
-    // Show success toast
-    toast.success("Logged in successfully!");
+      // إرسال بيانات تسجيل الدخول إلى الـ API
+      const response = await api.post<LoginResponse>("auth/login", {
+        email: data.email,
+        password: data.password,
+      });
 
-    // Redirect to dashboard after successful login
-    setTimeout(() => {
-      navigate("/");
-    }, 1500);
+      login({ email: data.email });
+
+      // Show success toast
+      toast.success("Logged in successfully!");
+
+      console.log("my token", response.data.token, data);
+
+      // Redirect to dashboard after successful login
+      setTimeout(() => {
+        navigate("/");
+      }, 3000);
+    } catch (error) {
+      // في حالة حدوث خطأ
+      console.error(error);
+      toast.error("Invalid username or password!");
+    }
   }
 
   return (

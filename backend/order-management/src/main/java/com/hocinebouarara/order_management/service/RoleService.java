@@ -39,4 +39,5 @@ public interface RoleService {
      * @param id the unique identifier of the role to be deleted.
      */
     void deleteRole(Long id);
+
 }

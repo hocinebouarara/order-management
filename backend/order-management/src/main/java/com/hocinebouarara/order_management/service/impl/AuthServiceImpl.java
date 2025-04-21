@@ -3,7 +3,7 @@ package com.hocinebouarara.order_management.service.impl;
 import com.hocinebouarara.order_management.dto.LoginRequest;
 import com.hocinebouarara.order_management.dto.LoginResponse;
 import com.hocinebouarara.order_management.dto.RegisterUserRequest;
-import com.hocinebouarara.order_management.dto.UserDTO;
+import com.hocinebouarara.order_management.dto.TokenUserDTO;
 import com.hocinebouarara.order_management.exception.MultipleFieldConflictException;
 import com.hocinebouarara.order_management.mapper.UserMapper;
 import com.hocinebouarara.order_management.model.entity.Company;
@@ -14,8 +14,9 @@ import com.hocinebouarara.order_management.repository.CompanyRepository;
 import com.hocinebouarara.order_management.repository.RoleRepository;
 import com.hocinebouarara.order_management.repository.SellerRepository;
 import com.hocinebouarara.order_management.repository.UserRepository;
-import com.hocinebouarara.order_management.security.JwtService;
 import com.hocinebouarara.order_management.service.AuthService;
+import com.hocinebouarara.order_management.service.RoleService;
+import com.hocinebouarara.order_management.service.TokenBuilderService;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.BadCredentialsException;
@@ -26,6 +27,7 @@ import org.springframework.stereotype.Service;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 @Transactional
@@ -36,16 +38,17 @@ public class AuthServiceImpl implements AuthService {
     private final CompanyRepository companyRepository;
     private final SellerRepository sellerRepository;
     private final RoleRepository roleRepository;
+    private final RoleService roleService;
+    private final TokenBuilderService tokenBuilderService;
 
     private final UserMapper userMapper;
-    private final JwtService jwtService;
     private final PasswordEncoder passwordEncoder;
 
 
 
     @Override
     @Transactional
-    public UserDTO registerUser(RegisterUserRequest request) {
+    public LoginResponse registerUser(RegisterUserRequest request) {
 
         List<String> errors = new ArrayList<>();
 
@@ -72,6 +75,9 @@ public class AuthServiceImpl implements AuthService {
         // 3. Get role and assign it to user
         Optional<Role> role = roleRepository.findByName("ROLE_" + request.getUserType().toUpperCase());
         user.setRoles(role.stream().toList());
+
+
+
 
         // 4. Save User
         User savedUser = userRepository.save(user);
@@ -105,8 +111,20 @@ public class AuthServiceImpl implements AuthService {
             throw new IllegalArgumentException("Invalid userType: " + request.getUserType());
         }
 
-        // 6. Return mapped DTO
-        return userMapper.userToUserDTO(savedUser);
+        // 3. Map user to UserDTO
+        //UserDTO userDTO = userMapper.userToUserDTO(user);
+
+        List<String> roleNames = new ArrayList<>();
+        roleNames.add(request.getUserType());
+
+        TokenUserDTO tokenUserDTO = new TokenUserDTO(
+                request.getUsername(),
+                request.getEmail(),
+                roleNames
+        );
+
+        // 4. Build LoginResponse using tokenBuilderService
+        return tokenBuilderService.buildLoginResponse(tokenUserDTO);
     }
 
 
@@ -115,7 +133,7 @@ public class AuthServiceImpl implements AuthService {
     @Override
     public LoginResponse login(LoginRequest request) {
         // 1. Find user by username/email
-        User user = userRepository.findByUsername(request.getUsername())
+        User user = userRepository.findByEmail(request.getEmail())
                 .orElseThrow(() -> new UsernameNotFoundException("User not found"));
 
         // 2. Check password using PasswordEncoder
@@ -123,11 +141,18 @@ public class AuthServiceImpl implements AuthService {
             throw new BadCredentialsException("Invalid password");
         }
 
-        // 3. Generate JWT token
-        String token = jwtService.generateToken(user.getUsername());
+        List<Role> roles= user.getRoles();
+        List<String> roleNames = roles.stream()
+                .map(role -> role.getName().toString()) // أو role.getName().name() لو كان Enum
+                .collect(Collectors.toList());
 
-        // 4. Return token
-        return new LoginResponse(token);
+
+        // 4. Build LoginResponse using tokenBuilderService
+        return tokenBuilderService.buildLoginResponse(new TokenUserDTO(
+                user.getUsername(),
+                request.getEmail(),
+                roleNames
+        ));
     }
 
 

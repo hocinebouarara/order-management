@@ -53,4 +53,12 @@ public class UserServiceImpl implements UserService {
         userRepository.deleteById(id);
     }
 
+    @Override
+    public UserDTO getUserByEmail(String email) {
+        // Fetch user by username and map it to DTO
+        return userRepository.findByEmail(email)
+                .map(userMapper::userToUserDTO)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+    }
+
 }

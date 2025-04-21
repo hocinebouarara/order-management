@@ -16,9 +16,12 @@ import {
   userTypeLabels,
 } from "../schemas/signUpSchema";
 import { registerUser } from "../api/registerUser";
+import { useAuth } from "../../../context/authContext";
+import { log } from "console";
 
 export function SignUpForm() {
   const navigate = useNavigate();
+  const { login } = useAuth();
 
   const form = useForm<SignUpFormValues>({
     resolver: zodResolver(signUpSchema),
@@ -27,16 +30,21 @@ export function SignUpForm() {
       username: "",
       email: "",
       password: "",
-      userType: undefined,
+      userType: "seller",
     },
   });
 
   const onSubmit = async (data: SignUpFormValues) => {
     try {
-      await registerUser(data); // ✅ Call API function
+      const res = await registerUser(data); // ✅ Call API function
 
-      toast.success("Account created successfully!");
-      navigate("/"); // ✅ Redirect to home
+      if (res.token && res.userDTO) {
+        login(res); // Call the login function and pass the response object
+        toast.success("Account created successfully!");
+        navigate("/"); // Redirect to home page
+      } else {
+        throw new Error("Invalid response from server");
+      }
     } catch (err: any) {
       toast.error(err.response?.data?.message || "Signup failed");
       console.log(err.response);

@@ -18,4 +18,7 @@ public interface UserService {
     // Delete a user by its ID
     void deleteUser(Long id);
 
+
+    UserDTO getUserByEmail(String email);
+
 }

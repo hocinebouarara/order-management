@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * Implementation of the RoleService interface.
@@ -71,4 +72,5 @@ public class RoleServiceImpl implements RoleService {
     public List<RoleDTO> getAllRoles() {
         return roleMapper.rolesToRoleDTOs(roleRepository.findAll());
     }
+
 }

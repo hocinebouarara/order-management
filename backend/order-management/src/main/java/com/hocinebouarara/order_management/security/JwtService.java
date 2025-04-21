@@ -1,5 +1,6 @@
 package com.hocinebouarara.order_management.security;
 
+import com.hocinebouarara.order_management.dto.TokenUserDTO;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.Keys;
 import org.springframework.beans.factory.annotation.Value;
@@ -22,21 +23,23 @@ public class JwtService {
         return Keys.hmacShaKeyFor(keyBytes);
     }
 
-    public String generateToken(String username) {
+    public String generateToken(TokenUserDTO userDTO) {
         return Jwts.builder()
-                .setSubject(username)
+                .setSubject(userDTO.getEmail())
+                .claim("username",userDTO.getUsername())
+                .claim("roles",userDTO.getRoles())
                 .setIssuedAt(new Date())
                 .setExpiration(new Date(System.currentTimeMillis() + jwtExpirationMs))
                 .signWith(getSigningKey(), SignatureAlgorithm.HS256)
                 .compact();
     }
 
-    public String extractUsername(String token) {
+    public String extractEmail(String token) {
         return extractAllClaims(token).getSubject();
     }
 
     public boolean isTokenValid(String token, String username) {
-        return username.equals(extractUsername(token)) && !isTokenExpired(token);
+        return username.equals(extractEmail(token)) && !isTokenExpired(token);
     }
 
     public boolean isTokenExpired(String token) {
