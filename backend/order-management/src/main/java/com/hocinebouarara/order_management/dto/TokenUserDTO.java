@@ -10,6 +10,8 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 public class TokenUserDTO {
+
+    private Long id;
     private String username; // اسم المستخدم
     private String email;    // البريد الإلكتروني
     private List<String> roles; // قائمة الأدوار

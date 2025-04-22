@@ -1,9 +1,6 @@
 package com.hocinebouarara.order_management.service.impl;
 
-import com.hocinebouarara.order_management.dto.LoginRequest;
-import com.hocinebouarara.order_management.dto.LoginResponse;
-import com.hocinebouarara.order_management.dto.RegisterUserRequest;
-import com.hocinebouarara.order_management.dto.TokenUserDTO;
+import com.hocinebouarara.order_management.dto.*;
 import com.hocinebouarara.order_management.exception.MultipleFieldConflictException;
 import com.hocinebouarara.order_management.mapper.UserMapper;
 import com.hocinebouarara.order_management.model.entity.Company;
@@ -118,6 +115,7 @@ public class AuthServiceImpl implements AuthService {
         roleNames.add(request.getUserType());
 
         TokenUserDTO tokenUserDTO = new TokenUserDTO(
+                user.getId(),
                 request.getUsername(),
                 request.getEmail(),
                 roleNames
@@ -136,6 +134,8 @@ public class AuthServiceImpl implements AuthService {
         User user = userRepository.findByEmail(request.getEmail())
                 .orElseThrow(() -> new UsernameNotFoundException("User not found"));
 
+        UserDTO userDTO = userMapper.userToUserDTO(user);
+
         // 2. Check password using PasswordEncoder
         if (!passwordEncoder.matches(request.getPassword(), user.getPassword())) {
             throw new BadCredentialsException("Invalid password");
@@ -149,6 +149,7 @@ public class AuthServiceImpl implements AuthService {
 
         // 4. Build LoginResponse using tokenBuilderService
         return tokenBuilderService.buildLoginResponse(new TokenUserDTO(
+                user.getId(),
                 user.getUsername(),
                 request.getEmail(),
                 roleNames

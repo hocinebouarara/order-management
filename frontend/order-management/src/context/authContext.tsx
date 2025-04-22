@@ -1,4 +1,5 @@
 import { createContext, useContext, useState, useEffect } from "react";
+import { Navigate, useNavigate } from "react-router-dom";
 
 // تعريف نوع البيانات اللي راح نخزنها في الـ Context
 interface AuthContextType {
@@ -21,34 +22,43 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<any>(null);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [loading, setLoading] = useState(true);
+  const navigate = useNavigate();
 
   useEffect(() => {
     const storedUser = localStorage.getItem("user");
     const token = localStorage.getItem("token");
 
+    console.log("📦 Stored User:", storedUser);
+    console.log("🔐 Stored Token:", token);
+
     if (storedUser && storedUser !== "undefined" && token) {
       try {
-        setUser(JSON.parse(storedUser)); // إذا كانت البيانات صحيحة، نقوم بتحليلها
-        setIsAuthenticated(true); // المستخدم مسجل الدخول
+        setUser(JSON.parse(storedUser));
+        setIsAuthenticated(true);
       } catch (error) {
-        console.error("خطأ في تحليل بيانات المستخدم من localStorage:", error);
-        setUser(null); // في حالة حدوث خطأ، يتم إعادة تعيين المستخدم
-        setIsAuthenticated(false); // تغيير الحالة إلى غير مسجل دخول
+        console.error("❌ Error parsing user from localStorage:", error);
+        setUser(null);
+        setIsAuthenticated(false);
       }
     } else {
-      setUser(null); // إذا كانت البيانات غير موجودة أو غير صالحة
-      setIsAuthenticated(false); // تغيير الحالة إلى غير مسجل دخول
+      setUser(null);
+      setIsAuthenticated(false);
     }
 
-    setLoading(false); // عند الانتهاء من التحقق، نوقف تحميل البيانات
+    setLoading(false);
   }, []);
 
   // دالة لتسجيل الدخول (login)
   const login = (userData: { token: string; userDTO: any }) => {
-    setUser(userData.userDTO);
-    setIsAuthenticated(true);
-    localStorage.setItem("user", JSON.stringify(userData.userDTO));
-    localStorage.setItem("token", userData.token);
+    console.log("🧠 Login Called with: ", userData); // ✅ أضف هذا هنا
+    if (userData.userDTO && userData.token) {
+      setUser(userData.userDTO);
+      setIsAuthenticated(true);
+      localStorage.setItem("user", JSON.stringify(userData.userDTO));
+      localStorage.setItem("token", userData.token);
+    } else {
+      console.warn("🚨 userDTO or token is missing in login data");
+    }
   };
 
   // دالة لتسجيل الخروج (logout)
@@ -57,6 +67,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     setIsAuthenticated(false);
     localStorage.removeItem("user"); // نحذف بيانات المستخدم من localStorage
     localStorage.removeItem("token");
+    navigate("/login");
   };
 
   if (loading) {

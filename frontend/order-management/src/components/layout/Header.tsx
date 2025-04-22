@@ -13,9 +13,11 @@ import {
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
 import { Badge } from "../ui/badge";
 import { Link } from "react-router-dom";
+import { useAuth } from "../../context/authContext";
 
 export function Header() {
   const [notifications, setNotifications] = useState(3);
+  const { user, logout } = useAuth();
 
   return (
     <header className="sticky top-0 z-10 bg-background/95 backdrop-blur border-b border-border h-16 flex items-center justify-between px-6">
@@ -74,38 +76,58 @@ export function Header() {
               </DropdownMenuItem>
             </div>
             <DropdownMenuSeparator />
-            <DropdownMenuItem className="justify-center text-primary">
+            <DropdownMenuItem className="justify-center text-primary cursor-pointer">
               View all notifications
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
 
-        {/* User menu */}
+        {/* User Menu */}
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Button variant="ghost" className="relative h-8 w-8 rounded-full">
-              <Avatar className="h-8 w-8">
-                <AvatarImage src="/placeholder.svg" alt="User" />
-                <AvatarFallback>AD</AvatarFallback>
+            <Button variant="ghost" className="relative h-10 w-10 rounded-full">
+              <Avatar className="h-10 w-10">
+                <AvatarImage src={user?.image} alt="User" />
+                <AvatarFallback>{user?.username?.[0] ?? "U"}</AvatarFallback>
               </Avatar>
+              {/* Online status */}
+              <span className="absolute bottom-0 right-0 h-3 w-3 rounded-full bg-green-500 border-2 border-white" />
             </Button>
           </DropdownMenuTrigger>
-          <DropdownMenuContent align="end">
-            <DropdownMenuLabel>My Account</DropdownMenuLabel>
+          <DropdownMenuContent align="end" className="w-64">
+            <div className="flex flex-col items-center p-4">
+              <div className="relative">
+                <Avatar className="h-16 w-16">
+                  <AvatarImage
+                    src={user?.image || "/placeholder.svg"}
+                    alt="User"
+                  />
+                  <AvatarFallback>{user?.username?.[0] ?? "U"}</AvatarFallback>
+                </Avatar>
+                <span className="absolute bottom-0 right-0 h-4 w-4 rounded-full bg-green-500 border-2 border-white" />
+              </div>
+              <p className="mt-2 font-semibold text-center">
+                {user?.username ?? "Hocine Bouarara"}
+              </p>
+            </div>
             <DropdownMenuSeparator />
             <DropdownMenuItem asChild>
-              <Link to="/profile" className="flex items-center cursor-pointer">
-                <User className="mr-2 h-4 w-4" />
-                <span>Profile</span>
+              <Link to="/profile" className="w-full">
+                Profile
               </Link>
             </DropdownMenuItem>
             <DropdownMenuItem asChild>
-              <Link to="/settings" className="cursor-pointer">
+              <Link to="/settings" className="w-full">
                 Settings
               </Link>
             </DropdownMenuItem>
             <DropdownMenuSeparator />
-            <DropdownMenuItem>Log out</DropdownMenuItem>
+            <DropdownMenuItem
+              className="text-red-500 cursor-pointer"
+              onClick={logout}
+            >
+              Sign Out
+            </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
       </div>

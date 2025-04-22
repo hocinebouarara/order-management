@@ -53,12 +53,12 @@ export default function Login() {
         password: data.password,
       });
 
-      login({ email: data.email });
+      login(response.data);
 
       // Show success toast
       toast.success("Logged in successfully!");
 
-      console.log("my token", response.data.token, data);
+      console.log("response from backend", response.data);
 
       // Redirect to dashboard after successful login
       setTimeout(() => {
