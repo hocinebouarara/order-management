@@ -57,14 +57,13 @@ const PRODUCT_CATEGORIES = [
 ];
 
 const sellerProfileSchema = z.object({
-  storeName: z.string().min(1, "Store name is required"),
-  storeAddress: z.string().min(1, "Store address is required"),
+  fullName: z.string().min(1, "Full name is required"),
+  username: z.string().min(1, "Username is required"),
+  email: z.string().email("Invalid email"),
+  address: z.string().min(1, "Store address is required"),
   phone: z.string().min(10, "Phone number must be at least 10 digits"),
-  whatsappNumber: z.string().optional(),
-  storeDescription: z.string().optional(),
-  productCategories: z
-    .array(z.string())
-    .min(1, "Select at least one product category"),
+  whatsapp: z.string().optional(),
+  bio: z.string().optional(),
 });
 
 interface Props {
@@ -78,19 +77,17 @@ const SellerProfileForm: React.FC<Props> = ({ profile, onSave }) => {
   const [profilePicturePreview, setProfilePicturePreview] = useState<
     string | undefined
   >(profile.profilePicture);
-  const [storeLogoPreview, setStoreLogoPreview] = useState<string | undefined>(
-    profile.storeLogo
-  );
 
   const form = useForm<z.infer<typeof sellerProfileSchema>>({
     resolver: zodResolver(sellerProfileSchema),
     defaultValues: {
-      storeName: profile.storeName || "",
-      storeAddress: profile.storeAddress || "",
+      fullName: profile.fullName || "",
+      username: profile.username || "",
+      email: profile.email || "",
       phone: profile.phone || "",
-      whatsappNumber: profile.whatsappNumber || "",
-      storeDescription: profile.storeDescription || "",
-      productCategories: profile.productCategories || [],
+      address: profile.address || "",
+      whatsapp: profile.whatsapp || "",
+      bio: profile.bio || "",
     },
   });
 
@@ -107,25 +104,21 @@ const SellerProfileForm: React.FC<Props> = ({ profile, onSave }) => {
     }
   };
 
-  const handleStoreLogoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files && e.target.files[0]) {
-      const file = e.target.files[0];
-      const reader = new FileReader();
-      reader.onload = () => {
-        setStoreLogoPreview(reader.result as string);
-      };
-      reader.readAsDataURL(file);
-    }
-  };
-
   const onSubmit = async (data: z.infer<typeof sellerProfileSchema>) => {
     setIsSubmitting(true);
     try {
-      await onSave({
-        ...data,
-        profilePicture: profilePicturePreview,
-        storeLogo: storeLogoPreview,
-      });
+      const updatedProfile: Partial<SellerProfile> = {
+        ...profile, // تأكد أنك تبدأ من البيانات الأصلية
+        ...data, // ثم تقوم بتحديثها بما هو داخل الفورم
+        profilePicture: profilePicturePreview, // تضمين صورة البروفايل
+        username: profile.username, // تأكد من عدم تعديل اسم المستخدم إذا كان غير قابل للتعديل
+      };
+
+      console.log("Updated profile data:", updatedProfile);
+
+      // استدعاء الدالة التي تم تمريرها من المكون الأب (ProfileManagement)
+      await onSave(updatedProfile); // هذه هي دالة handleSaveProfile
+
       toast({
         title: "Profile updated",
         description: "Your seller profile has been successfully updated.",
@@ -142,16 +135,8 @@ const SellerProfileForm: React.FC<Props> = ({ profile, onSave }) => {
   };
 
   // Calculate profile completeness
-  const requiredFields = [
-    "storeName",
-    "storeAddress",
-    "phone",
-    "productCategories",
-  ];
+  const requiredFields = ["storeName", "storeAddress", "phone"];
   const completedRequiredFields = requiredFields.filter((field) => {
-    if (field === "productCategories") {
-      return profile.productCategories && profile.productCategories.length > 0;
-    }
     return !!profile[field as keyof SellerProfile];
   });
 
@@ -168,7 +153,10 @@ const SellerProfileForm: React.FC<Props> = ({ profile, onSave }) => {
               Update your seller information and store details
             </CardDescription>
           </div>
-          <ProfileStatusIndicator isComplete={isProfileComplete} />
+          <ProfileStatusIndicator
+            isComplete={isProfileComplete}
+            percentage={65}
+          />
         </div>
       </CardHeader>
       <CardContent>
@@ -177,41 +165,44 @@ const SellerProfileForm: React.FC<Props> = ({ profile, onSave }) => {
             <div className="grid gap-6 md:grid-cols-2">
               {/* Read-only fields section */}
               <div className="space-y-4">
-                <div className="space-y-2">
-                  <Label htmlFor="fullName" className="flex items-center gap-2">
-                    <User className="h-4 w-4" /> Full Name
-                  </Label>
-                  <Input
-                    id="fullName"
-                    value={profile.fullName}
-                    readOnly
-                    className="bg-muted"
-                  />
-                </div>
+                <FormField
+                  control={form.control}
+                  name="fullName"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className="flex items-center gap-2">
+                        <User className="h-4 w-4" /> Full Name
+                      </FormLabel>
+                      <FormControl>
+                        <Input {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
 
                 <div className="space-y-2">
                   <Label htmlFor="username" className="flex items-center gap-2">
                     <BadgeInfo className="h-4 w-4" /> Username
                   </Label>
-                  <Input
-                    id="username"
-                    value={profile.username}
-                    readOnly
-                    className="bg-muted"
-                  />
+                  <Input id="username" value={profile.username} />
                 </div>
 
-                <div className="space-y-2">
-                  <Label htmlFor="email" className="flex items-center gap-2">
-                    <BadgeInfo className="h-4 w-4" /> Email
-                  </Label>
-                  <Input
-                    id="email"
-                    value={profile.email}
-                    readOnly
-                    className="bg-muted"
-                  />
-                </div>
+                <FormField
+                  control={form.control}
+                  name="email"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className="flex items-center gap-2">
+                        <BadgeInfo className="h-4 w-4" /> Email
+                      </FormLabel>
+                      <FormControl>
+                        <Input {...field} type="email" />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
               </div>
 
               {/* Profile picture upload section */}
@@ -248,41 +239,6 @@ const SellerProfileForm: React.FC<Props> = ({ profile, onSave }) => {
             </div>
 
             <div className="grid gap-6 md:grid-cols-2">
-              {/* Store information */}
-              <FormField
-                control={form.control}
-                name="storeName"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel className="flex items-center gap-2">
-                      <Store className="h-4 w-4" /> Store Name
-                    </FormLabel>
-                    <FormControl>
-                      <Input {...field} placeholder="Your store name" />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              <FormField
-                control={form.control}
-                name="storeAddress"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel className="flex items-center gap-2">
-                      <MapPin className="h-4 w-4" /> Store Address
-                    </FormLabel>
-                    <FormControl>
-                      <Input {...field} placeholder="Store address" />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            </div>
-
-            <div className="grid gap-6 md:grid-cols-2">
               <FormField
                 control={form.control}
                 name="phone"
@@ -298,10 +254,28 @@ const SellerProfileForm: React.FC<Props> = ({ profile, onSave }) => {
                   </FormItem>
                 )}
               />
-
               <FormField
                 control={form.control}
-                name="whatsappNumber"
+                name="address"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className="flex items-center gap-2">
+                      <MapPin className="h-4 w-4" />
+                      Address
+                    </FormLabel>
+                    <FormControl>
+                      <Input {...field} placeholder="Store address" />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </div>
+
+            <div className="grid gap-6 md:grid-cols-2">
+              <FormField
+                control={form.control}
+                name="whatsapp"
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel className="flex items-center gap-2">
@@ -320,105 +294,21 @@ const SellerProfileForm: React.FC<Props> = ({ profile, onSave }) => {
               />
             </div>
 
-            <div className="grid gap-6 md:grid-cols-2">
-              {/* Store logo upload */}
-              <div className="space-y-4">
-                <Label htmlFor="storeLogo" className="flex items-center gap-2">
-                  <Image className="h-4 w-4" /> Store Logo
-                </Label>
-                <div className="flex flex-col gap-4">
-                  {storeLogoPreview && (
-                    <div className="relative w-32 h-32 overflow-hidden rounded-md border border-border">
-                      <img
-                        src={storeLogoPreview}
-                        alt="Store Logo"
-                        className="w-full h-full object-contain"
-                      />
-                    </div>
-                  )}
-                  <Input
-                    id="storeLogo"
-                    type="file"
-                    accept="image/*"
-                    onChange={handleStoreLogoChange}
-                    className="text-sm"
-                  />
-                </div>
-              </div>
-
-              {/* Product categories */}
-              <FormField
-                control={form.control}
-                name="productCategories"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel className="flex items-center gap-2">
-                      <Tag className="h-4 w-4" /> Product Categories
-                    </FormLabel>
-                    <div className="space-y-2">
-                      <div className="flex flex-wrap gap-2 mb-2">
-                        {field.value.map((category) => (
-                          <div
-                            key={category}
-                            className="bg-primary/10 text-primary px-2 py-1 rounded-full text-sm flex items-center gap-1"
-                          >
-                            {category}
-                            <button
-                              type="button"
-                              onClick={() => {
-                                const updatedCategories = field.value.filter(
-                                  (c) => c !== category
-                                );
-                                field.onChange(updatedCategories);
-                              }}
-                              className="text-primary/70 hover:text-primary rounded-full"
-                            >
-                              &times;
-                            </button>
-                          </div>
-                        ))}
-                      </div>
-                      <select
-                        className="w-full h-10 rounded-md border border-input bg-background px-3 py-2 text-sm"
-                        onChange={(e) => {
-                          if (
-                            e.target.value &&
-                            !field.value.includes(e.target.value)
-                          ) {
-                            field.onChange([...field.value, e.target.value]);
-                          }
-                          e.target.value = "";
-                        }}
-                      >
-                        <option value="">Select categories...</option>
-                        {PRODUCT_CATEGORIES.filter(
-                          (cat) => !field.value.includes(cat)
-                        ).map((category) => (
-                          <option key={category} value={category}>
-                            {category}
-                          </option>
-                        ))}
-                      </select>
-                    </div>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            </div>
+            <div className="grid gap-6 md:grid-cols-2"></div>
 
             {/* Store description */}
             <FormField
               control={form.control}
-              name="storeDescription"
+              name="bio"
               render={({ field }) => (
                 <FormItem>
                   <FormLabel className="flex items-center gap-2">
-                    <FileText className="h-4 w-4" /> Store Description
+                    <FileText className="h-4 w-4" /> Few Word About me
                   </FormLabel>
                   <FormControl>
                     <Textarea
                       {...field}
-                      placeholder="Describe your store and products"
+                      placeholder="Describe your self"
                       className="min-h-32"
                     />
                   </FormControl>

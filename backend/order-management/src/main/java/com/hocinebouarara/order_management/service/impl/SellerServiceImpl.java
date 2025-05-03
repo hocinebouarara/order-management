@@ -48,13 +48,11 @@ public class SellerServiceImpl implements SellerService {
 
         // Update the seller entity
         Seller existingSeller = existingSellerOpt.get();
-        existingSeller.setShopName(sellerDTO.getShopName());
         existingSeller.setFullName(sellerDTO.getFullName());
-        existingSeller.setPhonePage(sellerDTO.getPhonePage());
-        existingSeller.setPhoneAlt(sellerDTO.getPhoneAlt());
+        existingSeller.setPhone(sellerDTO.getPhonePage());
+        existingSeller.setWhatsApp(sellerDTO.getPhoneAlt());
         existingSeller.setEmail(sellerDTO.getEmail());
-        existingSeller.setWilaya(sellerDTO.getWilaya());
-        existingSeller.setVerified(sellerDTO.isVerified());
+
         existingSeller.setUpdatedAt(sellerDTO.getUpdatedAt());
 
         // Save the updated seller

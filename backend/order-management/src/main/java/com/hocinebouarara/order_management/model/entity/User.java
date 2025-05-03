@@ -1,5 +1,6 @@
 package com.hocinebouarara.order_management.model.entity;
 
+import com.hocinebouarara.order_management.model.enums.UserType;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -29,11 +30,16 @@ public class User {
     @Column(nullable = false)
     private String password;
 
+    @Enumerated(EnumType.STRING)
+    private UserType type;
+
     @Column(nullable = false)
     private String status = "active";
 
     @Column(name = "created_at")
     private LocalDateTime createdAt = LocalDateTime.now();
+
+    private boolean isProfileComplete;
 
 
     @ManyToMany(fetch = FetchType.LAZY)

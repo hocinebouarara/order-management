@@ -21,9 +21,7 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -47,15 +45,15 @@ public class AuthServiceImpl implements AuthService {
     @Transactional
     public LoginResponse registerUser(RegisterUserRequest request) {
 
-        List<String> errors = new ArrayList<>();
+        Map<String,String> errors = new HashMap<>();
 
         // 1. Check if the email or username already exists
         if (userRepository.existsByUsername(request.getUsername())) {
-            errors.add("Username already exists");
+            errors.put("username","Username already exists");
             //throw new UsernameAlreadyExistsException("Username is already in use.");
         }
         if (userRepository.existsByEmail(request.getEmail())) {
-            errors.add("Email already exists");
+            errors.put("email","Email already exists");
             //throw new EmailAlreadyExistsException("Email is already in use.");
         }
 
@@ -73,9 +71,6 @@ public class AuthServiceImpl implements AuthService {
         Optional<Role> role = roleRepository.findByName("ROLE_" + request.getUserType().toUpperCase());
         user.setRoles(role.stream().toList());
 
-
-
-
         // 4. Save User
         User savedUser = userRepository.save(user);
 
@@ -85,24 +80,12 @@ public class AuthServiceImpl implements AuthService {
             seller.setUser(savedUser);
             seller.setFullName(request.getUsername());
             seller.setEmail(request.getEmail());
-            // seller.setShopName(request.getBusinessName());
-            // seller.setWilaya(request.getWilaya());
-            // seller.setAddress(request.getAddress());
-            // seller.setPhonePage(request.getPhone());
-            // seller.setPhoneAlt(request.getPhoneAlt());
-
             sellerRepository.save(seller);
         } else if ("COMPANY".equalsIgnoreCase(request.getUserType())) {
             Company company = new Company();
             company.setUser(savedUser);
             company.setManagerName(request.getUsername());
             company.setEmail(request.getEmail());
-            // company.setName(request.getBusinessName());
-            // company.setWilaya(request.getWilaya());
-            // company.setAddress(request.getAddress());
-            // company.setPhone(request.getPhone());
-            // company.setPhoneAlt(request.getPhoneAlt());
-
             companyRepository.save(company);
         } else {
             throw new IllegalArgumentException("Invalid userType: " + request.getUserType());
@@ -124,9 +107,6 @@ public class AuthServiceImpl implements AuthService {
         // 4. Build LoginResponse using tokenBuilderService
         return tokenBuilderService.buildLoginResponse(tokenUserDTO);
     }
-
-
-
 
     @Override
     public LoginResponse login(LoginRequest request) {

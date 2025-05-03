@@ -37,6 +37,30 @@ public class GlobalExceptionHandler {
         );
     }
 
+    @ExceptionHandler(UserNotFoundException.class)
+    public ResponseEntity<Map<String, Object>> handleEmailAlreadyExists(UserNotFoundException ex) {
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(
+            Map.of(
+                "timestamp", LocalDateTime.now(),
+                "status", 409,
+                "error", "Not Found",
+                "message", ex.getMessage()
+            )
+        );
+    }
+
+    @ExceptionHandler(SellerNotFoundException.class)
+    public ResponseEntity<Map<String, Object>> handleSellerNotFound(SellerNotFoundException ex) {
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(
+                Map.of(
+                        "timestamp", LocalDateTime.now(),
+                        "status", 404,
+                        "error", "Not Found",
+                        "message", ex.getMessage()
+                )
+        );
+    }
+
     @ExceptionHandler(MultipleFieldConflictException.class)
     public ResponseEntity<Map<String, Object>> handleMultipleFieldConflict(MultipleFieldConflictException ex) {
         return ResponseEntity.status(HttpStatus.CONFLICT).body(
@@ -44,7 +68,7 @@ public class GlobalExceptionHandler {
                         "timestamp", LocalDateTime.now(),
                         "status", 409,
                         "error", "Conflict",
-                        "messages", ex.getErrors()
+                        "messages", ex.getFieldErrors()
                 )
         );
     }

@@ -1,4 +1,4 @@
-export type UserType = "seller" | "company";
+export type UserType = "SELLER" | "COMPANY";
 
 export interface BaseProfile {
   id: string;
@@ -6,30 +6,22 @@ export interface BaseProfile {
   username: string;
   email: string;
   phone: string;
-  whatsappNumber?: string;
-  isProfileComplete: boolean;
-  userType: UserType;
-  description?: string;
+  whatsapp?: string;
+  address: string;
+  type: UserType;
+  bio?: string;
   profilePicture?: string;
+  isProfileComplete: boolean;
 }
 
 export interface SellerProfile extends BaseProfile {
-  userType: "seller";
-  storeName: string;
-  storeAddress: string;
-  storeDescription?: string;
-  storeLogo?: string;
-  productCategories: string[];
+  type: "SELLER";
 }
 
 export interface CompanyProfile extends BaseProfile {
-  userType: "company";
+  type: "COMPANY";
   companyName: string;
-  companyAddress: string;
   companyLogo?: string;
-  coverageAreas: string[];
-  trackingUrl?: string;
-  companyType: "local" | "express" | "national" | "international" | "other";
 }
 
 export type Profile = SellerProfile | CompanyProfile;

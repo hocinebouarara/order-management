@@ -30,12 +30,17 @@ public class Company {
     /**
      * Official name of the confirmation company.
      */
-    private String name;
+    private String companyName;
 
     /**
      * Name of the manager or owner of the company.
      */
     private String managerName;
+
+    /**
+     * Email address for business communication.
+     */
+    private String email;
 
     /**
      * Primary contact phone number.
@@ -45,27 +50,18 @@ public class Company {
     /**
      * Alternate contact phone number.
      */
-    private String phoneAlt;
-
-    /**
-     * Email address for business communication.
-     */
-    private String email;
-
-    /**
-     * Wilaya or region of the Company.
-     */
-    private String wilaya;
+    private String whatsapp;
 
     /**
      * Address or Location of the Company.
      */
     private String address;
 
-    /**
-     * Whether the company is verified by the admin. Default is false.
-     */
-    private boolean isVerified = false;
+    private String bio;
+
+    private String profilePicture;
+
+    private String companyLogo;
 
     /**
      * Timestamp when the company was registered on the system.

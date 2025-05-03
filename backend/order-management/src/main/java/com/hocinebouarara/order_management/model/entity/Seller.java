@@ -28,11 +28,6 @@ public class Seller {
     private Long id;
 
     /**
-     * The name of the shop or business.
-     */
-    private String shopName;
-
-    /**
      * Full name of the seller (individual or representative).
      */
     private String fullName;
@@ -40,22 +35,17 @@ public class Seller {
     /**
      * Main phone number for the shop page or customer service.
      */
-    private String phonePage;
+    private String phone;
 
     /**
-     * Alternate contact number.
+     * Alternate whatsApp contact number.
      */
-    private String phoneAlt;
+    private String whatsApp;
 
     /**
-     * Email address of the seller.
+     * Email address of the seller. remove it
      */
     private String email;
-
-    /**
-     * Wilaya or region of the seller.
-     */
-    private String wilaya;
 
     /**
      *  Address or Location of the seller.
@@ -63,9 +53,14 @@ public class Seller {
     private String address;
 
     /**
-     * Whether the seller is verified by the admin. Default is false
+     *  Url of profile image
      */
-    private boolean isVerified = false;
+    private String profileImage;
+
+    /**
+     *  A few word about the user
+     */
+    private String bio;
 
     /**
      * Timestamp of seller registration.

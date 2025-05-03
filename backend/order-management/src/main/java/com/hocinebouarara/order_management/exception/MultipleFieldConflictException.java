@@ -1,16 +1,16 @@
 package com.hocinebouarara.order_management.exception;
 
-import java.util.List;
+import lombok.Data;
 
+import java.util.Map;
+
+@Data
 public class MultipleFieldConflictException extends RuntimeException {
-    private final List<String> errors;
+    private final Map<String,String> FieldErrors;
 
-    public MultipleFieldConflictException(List<String> errors) {
+    public MultipleFieldConflictException(Map<String,String> fieldErrors) {
         super("Validation failed");
-        this.errors = errors;
+        this.FieldErrors =fieldErrors;
     }
 
-    public List<String> getErrors() {
-        return errors;
-    }
 }

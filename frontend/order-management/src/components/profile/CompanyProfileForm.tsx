@@ -44,59 +44,12 @@ import {
 } from "lucide-react";
 import { useToast } from "../../hooks/use-toast";
 
-// Mock coverage areas for the demo
-const COVERAGE_AREAS = [
-  "New York",
-  "Los Angeles",
-  "Chicago",
-  "Houston",
-  "Phoenix",
-  "Philadelphia",
-  "San Antonio",
-  "San Diego",
-  "Dallas",
-  "San Jose",
-  "Austin",
-  "Jacksonville",
-  "Fort Worth",
-  "Columbus",
-  "San Francisco",
-  "Charlotte",
-  "Indianapolis",
-  "Seattle",
-  "Denver",
-  "Washington D.C.",
-];
-
-const COMPANY_TYPES = [
-  { value: "local", label: "Local" },
-  { value: "express", label: "Express" },
-  { value: "national", label: "National" },
-  { value: "international", label: "International" },
-  { value: "other", label: "Other" },
-];
-
 const companyProfileSchema = z.object({
   companyName: z.string().min(1, "Company name is required"),
-  companyAddress: z.string().min(1, "Company address is required"),
+  address: z.string().min(1, "Company address is required"),
   phone: z.string().min(10, "Phone number must be at least 10 digits"),
-  whatsappNumber: z.string().optional(),
-  trackingUrl: z
-    .string()
-    .url("Please enter a valid URL")
-    .or(z.string().length(0))
-    .optional(),
-  companyType: z.enum([
-    "local",
-    "express",
-    "national",
-    "international",
-    "other",
-  ]),
-  coverageAreas: z
-    .array(z.string())
-    .min(1, "Select at least one coverage area"),
-  description: z.string().optional(),
+  whatsapp: z.string().optional(),
+  bio: z.string().optional(),
 });
 
 interface Props {
@@ -118,13 +71,10 @@ const CompanyProfileForm: React.FC<Props> = ({ profile, onSave }) => {
     resolver: zodResolver(companyProfileSchema),
     defaultValues: {
       companyName: profile.companyName || "",
-      companyAddress: profile.companyAddress || "",
+      address: profile.address || "",
       phone: profile.phone || "",
-      whatsappNumber: profile.whatsappNumber || "",
-      trackingUrl: profile.trackingUrl || "",
-      companyType: profile.companyType || "local",
-      coverageAreas: profile.coverageAreas || [],
-      description: profile.description || "",
+      whatsapp: profile.whatsapp || "",
+      bio: profile.bio || "",
     },
   });
 
@@ -155,11 +105,18 @@ const CompanyProfileForm: React.FC<Props> = ({ profile, onSave }) => {
   const onSubmit = async (data: z.infer<typeof companyProfileSchema>) => {
     setIsSubmitting(true);
     try {
-      await onSave({
-        ...data,
+      const updatedProfile: Partial<CompanyProfile> = {
+        ...profile, // تأكد أنك تبدأ من البيانات الأصلية
+        ...data, // ثم تقوم بتحديثها بما هو داخل الفورم
         profilePicture: profilePicturePreview,
         companyLogo: companyLogoPreview,
-      });
+      };
+
+      console.log("Updated profile data:", updatedProfile);
+
+      // استدعاء الدالة التي تم تمريرها من المكون الأب (ProfileManagement)
+      await onSave(updatedProfile); // هذه هي دالة handleSaveProfile
+
       toast({
         title: "Profile updated",
         description: "Your company profile has been successfully updated.",
@@ -176,17 +133,8 @@ const CompanyProfileForm: React.FC<Props> = ({ profile, onSave }) => {
   };
 
   // Calculate profile completeness
-  const requiredFields = [
-    "companyName",
-    "companyAddress",
-    "phone",
-    "companyType",
-    "coverageAreas",
-  ];
+  const requiredFields = ["companyName", "address", "phone"];
   const completedRequiredFields = requiredFields.filter((field) => {
-    if (field === "coverageAreas") {
-      return profile.coverageAreas && profile.coverageAreas.length > 0;
-    }
     return !!profile[field as keyof CompanyProfile];
   });
 
@@ -203,7 +151,10 @@ const CompanyProfileForm: React.FC<Props> = ({ profile, onSave }) => {
               Update your company information and coverage details
             </CardDescription>
           </div>
-          <ProfileStatusIndicator isComplete={isProfileComplete} />
+          <ProfileStatusIndicator
+            isComplete={isProfileComplete}
+            percentage={90}
+          />
         </div>
       </CardHeader>
       <CardContent>
@@ -216,36 +167,21 @@ const CompanyProfileForm: React.FC<Props> = ({ profile, onSave }) => {
                   <Label htmlFor="fullName" className="flex items-center gap-2">
                     <User className="h-4 w-4" /> Full Name
                   </Label>
-                  <Input
-                    id="fullName"
-                    value={profile.fullName}
-                    readOnly
-                    className="bg-muted"
-                  />
+                  <Input id="fullName" value={profile.fullName} />
                 </div>
 
                 <div className="space-y-2">
                   <Label htmlFor="username" className="flex items-center gap-2">
                     <BadgeInfo className="h-4 w-4" /> Username
                   </Label>
-                  <Input
-                    id="username"
-                    value={profile.username}
-                    readOnly
-                    className="bg-muted"
-                  />
+                  <Input id="username" value={profile.username} />
                 </div>
 
                 <div className="space-y-2">
                   <Label htmlFor="email" className="flex items-center gap-2">
                     <BadgeInfo className="h-4 w-4" /> Email
                   </Label>
-                  <Input
-                    id="email"
-                    value={profile.email}
-                    readOnly
-                    className="bg-muted"
-                  />
+                  <Input id="email" value={profile.email} />
                 </div>
               </div>
 
@@ -302,7 +238,7 @@ const CompanyProfileForm: React.FC<Props> = ({ profile, onSave }) => {
 
               <FormField
                 control={form.control}
-                name="companyAddress"
+                name="address"
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel className="flex items-center gap-2">
@@ -336,7 +272,7 @@ const CompanyProfileForm: React.FC<Props> = ({ profile, onSave }) => {
 
               <FormField
                 control={form.control}
-                name="whatsappNumber"
+                name="whatsapp"
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel className="flex items-center gap-2">
@@ -349,58 +285,6 @@ const CompanyProfileForm: React.FC<Props> = ({ profile, onSave }) => {
                         type="tel"
                       />
                     </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            </div>
-
-            <div className="grid gap-6 md:grid-cols-2">
-              <FormField
-                control={form.control}
-                name="trackingUrl"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel className="flex items-center gap-2">
-                      <Link className="h-4 w-4" /> Tracking URL (Optional)
-                    </FormLabel>
-                    <FormControl>
-                      <Input
-                        {...field}
-                        placeholder="https://example.com/tracking"
-                        type="url"
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              <FormField
-                control={form.control}
-                name="companyType"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel className="flex items-center gap-2">
-                      <Building2 className="h-4 w-4" /> Company Type
-                    </FormLabel>
-                    <Select
-                      onValueChange={field.onChange}
-                      defaultValue={field.value}
-                    >
-                      <FormControl>
-                        <SelectTrigger>
-                          <SelectValue placeholder="Select company type" />
-                        </SelectTrigger>
-                      </FormControl>
-                      <SelectContent>
-                        {COMPANY_TYPES.map((type) => (
-                          <SelectItem key={type.value} value={type.value}>
-                            {type.label}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
                     <FormMessage />
                   </FormItem>
                 )}
@@ -435,71 +319,12 @@ const CompanyProfileForm: React.FC<Props> = ({ profile, onSave }) => {
                   />
                 </div>
               </div>
-
-              {/* Coverage areas */}
-              <FormField
-                control={form.control}
-                name="coverageAreas"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel className="flex items-center gap-2">
-                      <Globe className="h-4 w-4" /> Coverage Areas
-                    </FormLabel>
-                    <div className="space-y-2">
-                      <div className="flex flex-wrap gap-2 mb-2">
-                        {field.value.map((area) => (
-                          <div
-                            key={area}
-                            className="bg-primary/10 text-primary px-2 py-1 rounded-full text-sm flex items-center gap-1"
-                          >
-                            {area}
-                            <button
-                              type="button"
-                              onClick={() => {
-                                const updatedAreas = field.value.filter(
-                                  (a) => a !== area
-                                );
-                                field.onChange(updatedAreas);
-                              }}
-                              className="text-primary/70 hover:text-primary rounded-full"
-                            >
-                              &times;
-                            </button>
-                          </div>
-                        ))}
-                      </div>
-                      <select
-                        className="w-full h-10 rounded-md border border-input bg-background px-3 py-2 text-sm"
-                        onChange={(e) => {
-                          if (
-                            e.target.value &&
-                            !field.value.includes(e.target.value)
-                          ) {
-                            field.onChange([...field.value, e.target.value]);
-                          }
-                          e.target.value = "";
-                        }}
-                      >
-                        <option value="">Select coverage areas...</option>
-                        {COVERAGE_AREAS.filter(
-                          (area) => !field.value.includes(area)
-                        ).map((area) => (
-                          <option key={area} value={area}>
-                            {area}
-                          </option>
-                        ))}
-                      </select>
-                    </div>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
             </div>
 
             {/* Company description */}
             <FormField
               control={form.control}
-              name="description"
+              name="bio"
               render={({ field }) => (
                 <FormItem>
                   <FormLabel className="flex items-center gap-2">

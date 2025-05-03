@@ -12,6 +12,7 @@ import com.hocinebouarara.order_management.service.UserService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -57,15 +58,11 @@ public class AuthController {
 
     // Get User Details Endpoint (using token)
     @GetMapping("/me")
-    public ResponseEntity<UserDTO> getUserDetails(@RequestHeader("Authorization") String token) {
-        // إستخراج الـ username من التوكن
-        String email = jwtService.extractEmail(token.replace("Bearer ", ""));
-
-        // البحث عن المستخدم باستخدام الـ email
+    public ResponseEntity<UserDTO> getUserDetails(Authentication authentication) {
+        String email = authentication.getName(); // تم استخراجه تلقائيًا من JWT
         UserDTO user = userService.getUserByEmail(email);
-
-
-        return ResponseEntity.ok().body(user);  // إرجاع بيانات المستخدم
+        return ResponseEntity.ok(user);
     }
+
 
 }

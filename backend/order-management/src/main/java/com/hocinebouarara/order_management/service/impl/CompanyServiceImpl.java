@@ -41,12 +41,12 @@ public class CompanyServiceImpl implements CompanyService {
                 .orElseThrow(() -> new RuntimeException("Company not found"));
         
         // Update the company fields
-        existingCompany.setName(companyDTO.getName());
+        existingCompany.setCompanyName(companyDTO.getName());
         existingCompany.setManagerName(companyDTO.getManagerName());
         existingCompany.setPhone(companyDTO.getPhone());
-        existingCompany.setPhoneAlt(companyDTO.getPhoneAlt());
+        existingCompany.setWhatsapp(companyDTO.getPhoneAlt());
         existingCompany.setEmail(companyDTO.getEmail());
-        existingCompany.setVerified(companyDTO.isVerified());
+
         
         // Save the updated company
         Company updatedCompany = companyRepository.save(existingCompany);
